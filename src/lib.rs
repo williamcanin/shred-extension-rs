@@ -108,6 +108,7 @@ struct GInterfaceInfo {
 enum FileInfo {}
 enum MenuItem {}
 enum MenuProvider {}
+enum GtkWidget {}
 
 // ----- VTable — layout diferente por feature -----
 
