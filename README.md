@@ -87,6 +87,13 @@ Or using `wget`:
 bash <(wget -qO- https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
 ```
 
+> Note: To uninstall, use the `--uninstall` flag, for example:
+>
+> ```bash
+> bash <(curl -fsSL https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh) --uninstall
+> ```
+
+
 The script will:
 
 * Ask which file manager you use (Nautilus or Thunar)
