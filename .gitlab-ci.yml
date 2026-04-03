@@ -41,12 +41,9 @@ release-creation:
     - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file libshred-extension-rs-nautilus-${VERSION}-x86_64.so \"${PACKAGE_REGISTRY_URL}/libshred-extension-rs-nautilus-${VERSION}-x86_64.so\""
     - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file libshred-extension-rs-thunar-${VERSION}-x86_64.so \"${PACKAGE_REGISTRY_URL}/libshred-extension-rs-thunar-${VERSION}-x86_64.so\""
 
-    # SHA256SUMS e assinatura GPG
+    # SHA256SUMS apenas
     - "sha256sum libshred-extension-rs-*-${VERSION}-x86_64.so > SHA256SUMS"
-    - "printf \"%s\" \"$GPG_PRIVATE_KEY\" | gpg --batch --import"
-    - "echo \"$GPG_PASSPHRASE\" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --armor --detach-sign SHA256SUMS"
     - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file SHA256SUMS \"${PACKAGE_REGISTRY_URL}/SHA256SUMS\""
-    - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file SHA256SUMS.asc \"${PACKAGE_REGISTRY_URL}/SHA256SUMS.asc\""
   release:
     name: "Version $CI_COMMIT_TAG"
     description: |
@@ -56,7 +53,6 @@ release-creation:
       - libshred-extension-rs-nautilus — extensão para Nautilus
       - libshred-extension-rs-thunar  — extensão para Thunar
       - SHA256SUMS — checksums
-      - SHA256SUMS.asc — assinatura GPG
     tag_name: "$CI_COMMIT_TAG"
     assets:
       links:
@@ -66,5 +62,3 @@ release-creation:
           url: "${PACKAGE_REGISTRY_URL}/libshred-extension-rs-thunar-${CI_COMMIT_TAG#v}-x86_64.so"
         - name: "SHA256 Checksums"
           url: "${PACKAGE_REGISTRY_URL}/SHA256SUMS"
-        - name: "GPG Signature"
-          url: "${PACKAGE_REGISTRY_URL}/SHA256SUMS.asc"
