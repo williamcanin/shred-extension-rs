@@ -51,17 +51,16 @@ yay -S shred-extension-rs-thunar
 Or build manually:
 
 ```bash
-git clone https://aur.archlinux.org/shred-extension-rs-nautilus.git
-cd shred-extension-rs-nautilus
-makepkg -si
+git clone https://aur.archlinux.org/shred-extension-rs.git
+cd shred-extension-rs
+makepkg -s
+sudo pacman -U shred-extension-rs-nautilus-*.pkg.tar.zst
 ```
 
 or
 
 ```bash
-git clone https://aur.archlinux.org/shred-extension-rs-thunar.git
-cd shred-extension-rs-thunar
-makepkg -si
+sudo pacman -U shred-extension-rs-thunar-*.pkg.tar.zst
 ```
 
 Both packages install the library in the correct system path using the standard name:
