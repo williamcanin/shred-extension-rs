@@ -38,11 +38,11 @@ release-creation:
     - cd dist
 
     # Upload dos dois .so
-    - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file libshred-extension-rs-nautilus-${VERSION}-x86_64.so \"${PACKAGE_REGISTRY_URL}/libshred-extension-rs-nautilus.so\""
-    - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file libshred-extension-rs-thunar-${VERSION}-x86_64.so \"${PACKAGE_REGISTRY_URL}/libshred-extension-rs-thunar.so\""
+    - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file libshred_nautilus.so \"${PACKAGE_REGISTRY_URL}/libshred_nautilus.so\""
+    - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file libshred_thunar.so \"${PACKAGE_REGISTRY_URL}/libshred_thunar.so\""
 
     # SHA256SUMS apenas
-    - "sha256sum libshred-extension-rs-*-${VERSION}-x86_64.so > SHA256SUMS"
+    - "sha256sum libshred_nautilus.so libshred_thunar.so > SHA256SUMS"
     - "curl --header \"JOB-TOKEN: $CI_JOB_TOKEN\" --upload-file SHA256SUMS \"${PACKAGE_REGISTRY_URL}/SHA256SUMS\""
   release:
     name: "Version $CI_COMMIT_TAG"
@@ -50,15 +50,15 @@ release-creation:
       Automatic release for version $CI_COMMIT_TAG
 
       🔐 Files included:
-      - libshred-extension-rs-nautilus — extensão para Nautilus
-      - libshred-extension-rs-thunar  — extensão para Thunar
+      - libshred_nautilus — extension for Nautilus
+      - libshred_thunar  — extension for Thunar
       - SHA256SUMS — checksums
     tag_name: "$CI_COMMIT_TAG"
     assets:
       links:
         - name: "Nautilus Extension"
-          url: "${PACKAGE_REGISTRY_URL}/libshred-extension-rs-nautilus.so"
+          url: "${PACKAGE_REGISTRY_URL}/libshred_nautilus.so"
         - name: "Thunar Extension"
-          url: "${PACKAGE_REGISTRY_URL}/libshred-extension-rs-thunar.so"
+          url: "${PACKAGE_REGISTRY_URL}/libshred_thunar.so"
         - name: "SHA256 Checksums"
           url: "${PACKAGE_REGISTRY_URL}/SHA256SUMS"
