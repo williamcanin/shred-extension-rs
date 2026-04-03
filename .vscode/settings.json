@@ -1,0 +1,170 @@
+{
+  // Editor
+  "editor.fontSize": 16,
+  "editor.fontFamily": "JetBrains Mono, monospace",
+  "editor.hover.delay": 300,
+  "editor.lineHeight": 1.8,
+  "editor.inlayHints.fontSize": 12,
+  "editor.inlayHints.fontFamily": "Open Sans Medium",
+  "editor.fontLigatures": true,
+  "editor.semanticHighlighting.enabled": false,
+  "editor.tabSize": 2,
+  "editor.fontWeight": "300",
+  "files.autoSave": "onFocusChange",
+  "editor.hover.sticky": true,
+  "editor.inlayHints.enabled": "on", // disable type annotactions
+  "editor.inlayHints.padding": true,
+  "editor.guides.indentation": true,
+  "files.associations": {
+    "*.css": "scss"
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+ "editor.wordWrap": "on",
+  "editor.rulers": [100],
+  "editor.renderControlCharacters": false,
+  "editor.minimap.enabled": true,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.scrollbar.horizontal": "hidden",
+  "breadcrumbs.enabled": false,
+  "files.autoSaveDelay": 4000,
+  "files.trimTrailingWhitespace": true,
+  "css.lint.emptyRules": "ignore",
+  "terminal.integrated.tabs.enabled": true,
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.cursorStyle": "underline",
+  "editor.bracketPairColorization.enabled": false,
+  "editor.guides.highlightActiveBracketPair": false,
+  "editor.guides.bracketPairs": false,
+  "editor.matchBrackets": "always",
+  "editor.renderLineHighlight": "gutter",
+  "editor.showUnused": true,
+  "editor.suggest.showSnippets": true,
+  "git.autofetch": true,
+  "editor.semanticTokenColorCustomizations": {
+      "enabled": true,
+      "rules": {
+          "*.mutable": {
+              "underline": false,
+              "bold": true,
+          }
+      }
+  },
+
+  // UI
+  "workbench.activityBar.location": "default",
+  "workbench.startupEditor": "newUntitledFile",
+  "explorer.compactFolders": true,
+  "workbench.layoutControl.enabled": true,
+  "diffEditor.ignoreTrimWhitespace": true,
+  "explorer.fileNesting.enabled": true,
+  "window.commandCenter": true,
+  "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-auto",
+
+  // Python
+  "[python]": {
+      "editor.defaultFormatter": "ms-python.python",
+  },
+
+  // Terminal
+  "terminal.integrated.fontWeight": "500",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "Invoke-Expression (& 'C:\\Program Files\\starship\\bin\\starship.exe' init powershell --print-full-init | Out-String)"
+      ]
+    },
+    "Windows PowerShell": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+  // Rust / Rust Analyzer
+  "rust-analyzer.cargo.autoreload": true,
+  "rust-analyzer.cargo.buildScripts.enable": true,
+  "rust-analyzer.cargo.features": "all",
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.procMacro.enable": true,
+  "rust-analyzer.inlayHints.bindingModeHints.enable": true,
+  "rust-analyzer.inlayHints.closingBraceHints.enable": true,
+  "rust-analyzer.inlayHints.closingBraceHints.minLines": 25,
+  "rust-analyzer.inlayHints.expressionAdjustmentHints.enable": "always",
+  "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "always",
+  "rust-analyzer.semanticHighlighting.doc.comment.inject.enable": true,
+  "rust-analyzer.semanticHighlighting.punctuation.enable": true,
+  "rust-analyzer.files.exclude": ["target"],
+  "rust-analyzer.inlayHints.typeHints.enable": true,
+  "rust-analyzer.inlayHints.parameterHints.enable": true,
+  "rust-analyzer.inlayHints.chainingHints.enable": true,
+  "rust-analyzer.hover.actions.enable": true,
+  "rust-analyzer.completion.autoimport.enable": true,
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
+    "editor.fontWeight": "300",
+    "editor.showUnused": true,
+  },
+
+  // CMake
+  "cmake.configureOnOpen": true,
+
+  // Git
+  "git.openRepositoryInParentFolders": "never",
+
+  // Todo
+  "todo-tree.highlights.defaultHighlight": {
+    "icon": "alert",
+    "type": "text",
+    "foreground": "#ff1e00",
+    "background": "#ffffff",
+    "opacity": 90,
+    "iconColour": "#ffffff"
+  },
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "type": "line"
+    },
+    "FIXME": {
+      "foreground": "#000000",
+      "iconColour": "#eeff00",
+      "gutterIcon": true
+    }
+  },
+
+  // Excludes files
+  "files.exclude": {
+    "**.egg-info": true,
+    ".pytest_cache": true,
+    ".target": true,
+    ".idea": true,
+    ".tox": true,
+    "**/_gems": true,
+    "**/__pycache__": true,
+    "**/.bundle": true,
+    "**/bundle": true,
+    "**/.sass-cache": true,
+    "**/.jekyll-cache": true,
+    "**/_site": true,
+    "**.idea": true,
+    "**.log": true,
+    "**/*.bak": true,
+    "**.lock": true,
+    "**.yarnrc": true,
+    "**-lock.json": true,
+    "**/env": true,
+    "**/node_modules": true,
+    "**/venv": true,
+    "**/.venv": true,
+    "**/.vscode": true,
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+    },
+}

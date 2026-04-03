@@ -1,0 +1,17 @@
+[package]
+name = "shred-extension-rs"
+version = "0.1.0"
+edition = "2024"
+authors = ["William C. Canin <hello.williamcanin@gmail.com>"]
+description = "Secure file shredder extension for Nautilus and Thunar"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+nautilus = []
+thunar = []
+
+[dependencies]
+gio = "0.22"

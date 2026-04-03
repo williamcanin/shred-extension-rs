@@ -1,0 +1,133 @@
+name: Build and Release (Linux)
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pkg-config \
+            libglib2.0-dev \
+            libnautilus-extension-dev \
+            libthunarx-3-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Get version from Cargo.toml
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(cargo metadata --no-deps --format-version=1 \
+            | jq -r '.packages[0].version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build Nautilus (release)
+        run: cargo build --release --features nautilus
+
+      - name: Rename Nautilus artifact
+        run: |
+          mkdir -p dist
+          cp target/release/libshred_extension_rs.so \
+            dist/libshred-extension-rs-nautilus-${{ steps.version.outputs.version }}-x86_64.so
+
+      - name: Build Thunar (release)
+        run: cargo build --release --features thunar
+
+      - name: Rename Thunar artifact
+        run: |
+          cp target/release/libshred_extension_rs.so \
+            dist/libshred-extension-rs-thunar-${{ steps.version.outputs.version }}-x86_64.so
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: shred-extension-rs-${{ steps.version.outputs.version }}
+          path: dist/*
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Get version from Cargo.toml
+        id: version
+        run: |
+          VERSION=$(cargo metadata --no-deps --format-version=1 \
+            | jq -r '.packages[0].version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: shred-extension-rs-${{ steps.version.outputs.version }}
+          path: dist
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS
+
+      - name: Import GPG private key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+        env:
+          GPG_TTY: /dev/tty
+
+      - name: Sign SHA256SUMS
+        run: |
+          cd dist
+          echo "${{ secrets.GPG_PASSPHRASE }}" | \
+          gpg --batch --yes --pinentry-mode loopback \
+              --passphrase-fd 0 \
+              --armor --detach-sign SHA256SUMS
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Version ${{ steps.version.outputs.version }}
+          body: |
+            Automatic release generated from Cargo.toml.
+            Version: ${{ steps.version.outputs.version }}
+
+            🔐 Files included:
+            - `libshred-extension-rs-nautilus-${{ steps.version.outputs.version }}-x86_64.so` — extensão para Nautilus
+            - `libshred-extension-rs-thunar-${{ steps.version.outputs.version }}-x86_64.so` — extensão para Thunar
+            - `SHA256SUMS` — checksums
+            - `SHA256SUMS.asc` — assinatura GPG
+
+            ⚠️ Use only in a secure and offline environment.
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

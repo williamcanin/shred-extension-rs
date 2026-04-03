@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Rust (rust-analyzer)",
+      "type": "lldb-dap",
+      "request": "launch",
+      "program": "${command:rust-analyzer.getDebugExecutable}",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    }
+  ]
+}

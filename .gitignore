@@ -1,0 +1,37 @@
+# Use the global `.gitignore` file according to your operating system:
+# - macOS taken from: https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+# - Windows taken from: https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
+
+# Linux:
+*~
+
+# Husky:
+.husky
+
+# Git-Cliff
+.bin
+
+# Vim:
+.*.sw[a-z]
+.netrwhist
+*.un~
+Session.vim
+
+# Python:
+.venv
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+__pypackages__/
+*.Identifier
+
+# Project ignore:
+/target
+/temp
+/.idea
+/.venv*
+/.continue
+/.ai
+/.aider*
