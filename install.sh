@@ -2,7 +2,7 @@
 # Author: William C. Canin <hello.williamcanin@gmail.com>
 set -e
 
-# ----- Seleciona o file manager alvo -----
+# ----- Select the target file manager -----
 
 echo "Which file manager do you want to install the extension for?"
 echo "  1) Nautilus (GNOME)"
@@ -26,9 +26,9 @@ case "$FM_CHOICE" in
         ;;
 esac
 
-# ----- Localiza ou baixa a biblioteca -----
-
-LOCAL_LIB=$(ls ${LIB_PREFIX}*.so 2>/dev/null | head -n 1)
+# ----- Locate or download the library -----
+TARGET_NAME="libshred_extension_rs.so"
+LOCAL_LIB=$(ls ${TARGET_NAME} 2>/dev/null || true)
 
 if [ -n "$LOCAL_LIB" ]; then
     LIB_NAME="$LOCAL_LIB"
@@ -80,7 +80,7 @@ else
     fi
 fi
 
-# ----- Detecta o diretório de extensões -----
+# ----- Detect the extension directory -----
 
 EXT_DIR=""
 
@@ -115,18 +115,19 @@ fi
 echo "Extension directory detected: $EXT_DIR"
 echo "You will be asked for your administrator privileges (sudo) to install the lib."
 
-# ----- Instala -----
+# ----- Install -----
 
 sudo mkdir -p "$EXT_DIR"
-# Remove versões antigas para evitar conflito
-sudo rm -f "$EXT_DIR"/${LIB_PREFIX}*.so
-sudo cp -f "$LIB_NAME" "$EXT_DIR/"
-sudo chmod 755 "$EXT_DIR/$LIB_NAME"
+# Remove any old version (AUR or script)
+sudo rm -f "$EXT_DIR/$TARGET_NAME"
+# Copy renaming to the PKGBUILD pattern
+sudo cp -f "$LIB_NAME" "$EXT_DIR/$TARGET_NAME"
+sudo chmod 755 "$EXT_DIR/$TARGET_NAME"
 
 echo ""
 echo "Installation completed successfully!"
 
-# ----- Reinicia o file manager -----
+# ----- Restart the file manager -----
 
 if [ "$FM" = "nautilus" ]; then
     echo "Restarting Nautilus..."
