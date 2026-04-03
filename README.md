@@ -15,48 +15,128 @@ Escrita em **Rust**, a extensão foca na alta performance e máxima segurança a
 * **Interface Assíncrona & Instantânea**: Quando confirmada a exclusão, o arquivo é imediatamente ocultado e some visualmente da interface de forma instantânea. A exclusão de fato ocorre silenciosamente em uma **background thread**, mantendo o explorador arquivos responsivo e não afetando sua navegação.
 * **Caixa de Confirmação Integrada**: Para evitar cliques acidentais e dores de cabeça que o comando `shred` pode causar se acionado por engano, a extensão chama a Dialog Box nativa (`zenity`) do sistema. Requer o "Sim/OK" para sumir de vez com o item.
 * **Camuflagem Inteligente de Arquivo**: Diferente do comando nativo `shred -u` no terminal (que polui e pisca a sua pasta de arquivos com os nomes criptografados antes de desfazê-los, como `000000`), esta extensão camufla perfeitamente os arquivos através de diretórios temporários "invisíveis" (iniciados com `.`) para o Gerenciador de Arquivos. A deleção acontece por trás de cortinas, silenciosamente.
-* **Suporte Multi-Ambiente**: Compatível tanto com o **Nautilus** quanto o **Thunar**, compartilhando a mesma base de código em Rust. 
+* **Suporte Multi-Ambiente**: Compatível tanto com o **Nautilus** quanto o **Thunar**, compartilhando a mesma base de código em Rust.
 * **Internacionalização (i18n) Embutida**: O software é portátil, e possui detecção automática de idioma baseando-se no SO local para exibir todas as mensagens e menus em:
-  - 🇧🇷 Português-BR / PT (*"Excluir com Segurança"*)
-  - 🇪🇸 Espanhol (*"Eliminación Segura"*)
-  - 🇺🇸 Inglês Padrão / Fallback (*"Secure Delete"*)
 
-## 📦 Como Instalar (Sem necessidade de compilar)
+  * 🇧🇷 Português-BR / PT (*"Excluir com Segurança"*)
+  * 🇪🇸 Espanhol (*"Eliminación Segura"*)
+  * 🇺🇸 Inglês Padrão / Fallback (*"Secure Delete"*)
 
-Recomendamos usar o script de instalação automática.
+---
 
-### 1. Download & Instalação Automática (Recomendado)
+## 📦 Instalação
 
-Faça o clone ou baixe este repositório, extraia os arquivos se necessário, abra um terminal dentro da pasta e rode o script interativo:
+Você pode instalar a extensão de três formas diferentes:
+
+1. **Arch Linux (AUR)** — pacotes separados para cada file manager:
+
+   * `shred-extension-rs-nautilus`
+   * `shred-extension-rs-thunar`
+2. **Script automático universal (qualquer distro)**
+3. **Instalação manual da biblioteca**
+
+---
+
+### 🐧 Arch Linux (AUR)
+
+Se você utiliza Arch Linux ou derivadas (EndeavourOS, Manjaro, CachyOS, etc), instale diretamente pelo AUR escolhendo o file manager desejado:
 
 ```bash
-chmod +x install.sh
-./install.sh
+yay -S shred-extension-rs-nautilus
 ```
 
-O script detectará rapidamente a arquitetura, fará e perguntará qual file manager (Nautilus ou Thunar) você deseja instalar, efetuando o download automático da versão mais recente através da API do GitHub.
+ou
 
-### 2. Instalação Manual
+```bash
+yay -S shred-extension-rs-thunar
+```
 
-Se preferir gerenciar manualmente usando comandos `root`, você precisará da biblioteca contida nos nossos Releases (`.so`). 
+Ou manualmente:
+
+```bash
+git clone https://aur.archlinux.org/shred-extension-rs-nautilus.git
+cd shred-extension-rs-nautilus
+makepkg -si
+```
+
+ou
+
+```bash
+git clone https://aur.archlinux.org/shred-extension-rs-thunar.git
+cd shred-extension-rs-thunar
+makepkg -si
+```
+
+Os pacotes instalam a biblioteca no local correto do sistema usando o nome padrão:
+
+```
+libshred_extension_rs.so
+```
+
+Totalmente compatível com atualizações futuras e sem conflito com o instalador por script.
+
+---
+
+### 🚀 Instalação Automática (Qualquer distribuição Linux)
+
+Você pode instalar **sem baixar nada**, executando o script diretamente do repositório oficial:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
+```
+
+Ou usando `wget`:
+
+```bash
+bash <(wget -qO- https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
+```
+
+O script:
+
+* Pergunta qual file manager você deseja (Nautilus ou Thunar)
+* Baixa automaticamente a versão mais recente via API do GitHub
+* Instala a biblioteca no diretório correto do sistema
+* Padroniza o nome para `libshred_extension_rs.so`, garantindo compatibilidade com o AUR
+
+> 💡 Dica de segurança: você pode inspecionar o script antes de executar acessando:
+> [https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh](https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
+
+---
+
+### 🧰 Instalação Manual
+
+Se preferir gerenciar manualmente usando comandos `root`, você precisará da biblioteca contida nos nossos Releases (`.so`).
+
+Após baixar o arquivo do Release, renomeie para o padrão esperado:
+
+```bash
+mv libshred-extension-rs-*.so libshred_extension_rs.so
+```
 
 * **Para Nautilus:**
+
 ```bash
-sudo cp libshred-extension-rs-nautilus-*.so /usr/lib/nautilus/extensions-4/
+sudo cp libshred_extension_rs.so /usr/lib/nautilus/extensions-4/
 nautilus -q
 ```
+
 *(Alguns sistemas como Ubuntu/Mint podem usar `/usr/lib/x86_64-linux-gnu/nautilus/extensions-4/`)*
 
 * **Para Thunar:**
+
 ```bash
-sudo cp libshred-extension-rs-thunar-*.so /usr/lib/thunarx-3/
+sudo cp libshred_extension_rs.so /usr/lib/thunarx-3/
 thunar -q
 ```
+
 *(Algumas distribuições usam `/usr/lib/x86_64-linux-gnu/thunarx-3/`)*
+
+---
 
 ## 🧑‍💻 Motivação & Aprofundamento Backend (Arquitetura)
 
-Se você tem interesse em Engenharia de Software, integração com C-FFI, e como driblamos as limitações de bibliotecas no Rust que bloqueiam a *main thread* do GTK, confira nosso arquivo [ARCHITECTURE.md](ARCHITECTURE.md) com os detalhes das soluções adoradas.
+Se você tem interesse em Engenharia de Software, integração com C-FFI, e como driblamos as limitações de bibliotecas no Rust que bloqueiam a *main thread* do GTK, confira nosso arquivo [ARCHITECTURE.md](ARCHITECTURE.md) com os detalhes das soluções adotadas.
 
 ---
+
 **Aviso de Uso:** *A sobrescrita ocorre em 3 etapas acompanhadas por preenchimento em "0". Esta ferramenta utiliza deleção de alta segurança, sendo os processos aplicados **irreversíveis**. Portanto, certifique-se bem de onde clica!*
