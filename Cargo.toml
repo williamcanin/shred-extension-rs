@@ -1,17 +1,18 @@
-[package]
-name = "shred-extension-rs"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+resolver = "2"
+members = [
+    "shred-common",
+    "shred-nautilus",
+    "shred-thunar",
+]
+
+[workspace.package]
+description = "Secure file shredding extension for Nautilus and Thunar."
+repository = "https://github.com/williamcanin/shred-extension-rs"
+version = "0.2.0"
 authors = ["William C. Canin <hello.williamcanin@gmail.com>"]
-description = "Secure file shredder extension for Nautilus and Thunar"
-license = "MIT"
+edition = "2024"
+rust-version = "1.93.1"
 
-[lib]
-crate-type = ["cdylib"]
-
-[features]
-nautilus = []
-thunar = []
-
-[dependencies]
+[workspace.dependencies]
 gio = "0.22"

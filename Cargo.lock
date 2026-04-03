@@ -263,10 +263,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "shred-extension-rs"
-version = "0.1.0"
+name = "shred-common"
+version = "0.2.0"
 dependencies = [
  "gio",
+]
+
+[[package]]
+name = "shred-nautilus"
+version = "0.2.0"
+dependencies = [
+ "gio",
+ "shred-common",
+]
+
+[[package]]
+name = "shred-thunar"
+version = "0.2.0"
+dependencies = [
+ "gio",
+ "shred-common",
 ]
 
 [[package]]

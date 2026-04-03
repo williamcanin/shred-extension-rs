@@ -1,0 +1,12 @@
+[package]
+name = "shred-thunar"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+gio = { workspace = true }
+shred-common = { path = "../shred-common" }
