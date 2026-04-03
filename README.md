@@ -5,53 +5,50 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20GNOME%20%26%20XFCE-blue?logo=linux)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-Uma extensão nativa e ultraleve para os gerenciadores de arquivos **Nautilus (GNOME)** e **Thunar (XFCE)** que adiciona a opção de exclusão permanente com padrão governamental (**Shred**) no menu de contexto dos seus arquivos.
+A native, ultra-lightweight extension for the **Nautilus (GNOME)** and **Thunar (XFCE)** file managers that adds a permanent, government‑grade secure deletion option (**Shred**) to your file context menu.
 
-Escrita em **Rust**, a extensão foca na alta performance e máxima segurança ao destruir dados. Ela se comunica diretamente via APIs com o nível base do C (GObject / libnautilus-extension / libthunarx), sem camadas inchadas de dependências desatualizadas.
+Written in **Rust**, the extension focuses on high performance and maximum data destruction security. It communicates directly with low-level C APIs (GObject / libnautilus-extension / libthunarx) without bloated dependency layers.
 
 ## ✨ Features
 
-* **Nativo no Menu de Contexto**: Opção explícita "Excluir com Segurança" visível em qualquer arquivo do navegador padrão do GNOME ou XFCE.
-* **Interface Assíncrona & Instantânea**: Quando confirmada a exclusão, o arquivo é imediatamente ocultado e some visualmente da interface de forma instantânea. A exclusão de fato ocorre silenciosamente em uma **background thread**, mantendo o explorador arquivos responsivo e não afetando sua navegação.
-* **Caixa de Confirmação Integrada**: Para evitar cliques acidentais e dores de cabeça que o comando `shred` pode causar se acionado por engano, a extensão chama a Dialog Box nativa (`zenity`) do sistema. Requer o "Sim/OK" para sumir de vez com o item.
-* **Camuflagem Inteligente de Arquivo**: Diferente do comando nativo `shred -u` no terminal (que polui e pisca a sua pasta de arquivos com os nomes criptografados antes de desfazê-los, como `000000`), esta extensão camufla perfeitamente os arquivos através de diretórios temporários "invisíveis" (iniciados com `.`) para o Gerenciador de Arquivos. A deleção acontece por trás de cortinas, silenciosamente.
-* **Suporte Multi-Ambiente**: Compatível tanto com o **Nautilus** quanto o **Thunar**, compartilhando a mesma base de código em Rust.
-* **Internacionalização (i18n) Embutida**: O software é portátil, e possui detecção automática de idioma baseando-se no SO local para exibir todas as mensagens e menus em:
+* **Native Context Menu Integration**: A clear "Secure Delete" option available for any file in GNOME or XFCE file managers.
+* **Asynchronous & Instant UI**: After confirmation, the file disappears instantly from the interface. The actual shredding runs silently in a **background thread**, keeping the file manager fully responsive.
+* **Integrated Confirmation Dialog**: To prevent accidental clicks and the headaches the `shred` command can cause when misused, the extension calls the system’s native dialog (`zenity`). A "Yes/OK" confirmation is required.
+* **Smart File Camouflage**: Unlike the native `shred -u` behavior in the terminal (which briefly pollutes your folder with renamed artifacts like `000000`), this extension hides files inside temporary "invisible" directories (starting with `.`). The deletion happens behind the scenes, silently.
+* **Multi‑Environment Support**: Works with both **Nautilus** and **Thunar**, sharing the same Rust codebase.
+* **Built‑in Internationalization (i18n)**: Automatic language detection based on the system locale to display menus and messages in:
 
-  * 🇧🇷 Português-BR / PT (*"Excluir com Segurança"*)
-  * 🇪🇸 Espanhol (*"Eliminación Segura"*)
-  * 🇺🇸 Inglês Padrão / Fallback (*"Secure Delete"*)
+  * 🇧🇷 Portuguese‑BR / PT ("Excluir com Segurança")
+  * 🇪🇸 Spanish ("Eliminación Segura")
+  * 🇺🇸 English / Fallback ("Secure Delete")
 
 ---
 
-## 📦 Instalação
+## 📦 Installation
 
-Você pode instalar a extensão de três formas diferentes:
+You can install the extension in three different ways:
 
-1. **Arch Linux (AUR)** — pacotes separados para cada file manager:
-
-   * `shred-extension-rs-nautilus`
-   * `shred-extension-rs-thunar`
-2. **Script automático universal (qualquer distro)**
-3. **Instalação manual da biblioteca**
+1. **Arch Linux (AUR)** — separate packages for each file manager
+2. **Universal automatic script (any distro)**
+3. **Manual library installation**
 
 ---
 
 ### 🐧 Arch Linux (AUR)
 
-Se você utiliza Arch Linux ou derivadas (EndeavourOS, Manjaro, CachyOS, etc), instale diretamente pelo AUR escolhendo o file manager desejado:
+If you use Arch Linux or derivatives (EndeavourOS, Manjaro, CachyOS, etc.), install directly from the AUR by choosing your desired file manager:
 
 ```bash
 yay -S shred-extension-rs-nautilus
 ```
 
-ou
+or
 
 ```bash
 yay -S shred-extension-rs-thunar
 ```
 
-Ou manualmente:
+Or build manually:
 
 ```bash
 git clone https://aur.archlinux.org/shred-extension-rs-nautilus.git
@@ -59,7 +56,7 @@ cd shred-extension-rs-nautilus
 makepkg -si
 ```
 
-ou
+or
 
 ```bash
 git clone https://aur.archlinux.org/shred-extension-rs-thunar.git
@@ -67,76 +64,76 @@ cd shred-extension-rs-thunar
 makepkg -si
 ```
 
-Os pacotes instalam a biblioteca no local correto do sistema usando o nome padrão:
+Both packages install the library in the correct system path using the standard name:
 
 ```
 libshred_extension_rs.so
 ```
 
-Totalmente compatível com atualizações futuras e sem conflito com o instalador por script.
+Fully compatible with future updates and with no conflict with the script installer.
 
 ---
 
-### 🚀 Instalação Automática (Qualquer distribuição Linux)
+### 🚀 Automatic Installation (Any Linux Distribution)
 
-Você pode instalar **sem baixar nada**, executando o script diretamente do repositório oficial:
+You can install **without downloading anything** by running the script directly from the official repository:
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
 ```
 
-Ou usando `wget`:
+Or using `wget`:
 
 ```bash
 bash <(wget -qO- https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
 ```
 
-O script:
+The script will:
 
-* Pergunta qual file manager você deseja (Nautilus ou Thunar)
-* Baixa automaticamente a versão mais recente via API do GitHub
-* Instala a biblioteca no diretório correto do sistema
-* Padroniza o nome para `libshred_extension_rs.so`, garantindo compatibilidade com o AUR
+* Ask which file manager you use (Nautilus or Thunar)
+* Automatically download the latest release via the GitHub API
+* Install the library in the correct system directory
+* Standardize the name to `libshred_extension_rs.so`, ensuring AUR compatibility
 
-> 💡 Dica de segurança: você pode inspecionar o script antes de executar acessando:
+> 💡 Security tip: you can inspect the script before running it by opening:
 > [https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh](https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
 
 ---
 
-### 🧰 Instalação Manual
+### 🧰 Manual Installation
 
-Se preferir gerenciar manualmente usando comandos `root`, você precisará da biblioteca contida nos nossos Releases (`.so`).
+If you prefer managing everything manually with `root` commands, download the `.so` library from the project Releases.
 
-Após baixar o arquivo do Release, renomeie para o padrão esperado:
+After downloading, rename it to the expected standard:
 
 ```bash
 mv libshred-extension-rs-*.so libshred_extension_rs.so
 ```
 
-* **Para Nautilus:**
+* **For Nautilus:**
 
 ```bash
 sudo cp libshred_extension_rs.so /usr/lib/nautilus/extensions-4/
 nautilus -q
 ```
 
-*(Alguns sistemas como Ubuntu/Mint podem usar `/usr/lib/x86_64-linux-gnu/nautilus/extensions-4/`)*
+*(Some systems like Ubuntu/Mint may use `/usr/lib/x86_64-linux-gnu/nautilus/extensions-4/`)*
 
-* **Para Thunar:**
+* **For Thunar:**
 
 ```bash
 sudo cp libshred_extension_rs.so /usr/lib/thunarx-3/
 thunar -q
 ```
 
-*(Algumas distribuições usam `/usr/lib/x86_64-linux-gnu/thunarx-3/`)*
+*(Some distributions use `/usr/lib/x86_64-linux-gnu/thunarx-3/`)*
 
 ---
 
-## 🧑‍💻 Motivação & Aprofundamento Backend (Arquitetura)
+## 🧑‍💻 Motivation & Backend Architecture
 
-Se você tem interesse em Engenharia de Software, integração com C-FFI, e como driblamos as limitações de bibliotecas no Rust que bloqueiam a *main thread* do GTK, confira nosso arquivo [ARCHITECTURE.md](ARCHITECTURE.md) com os detalhes das soluções adotadas.
+If you are interested in Software Engineering, C‑FFI integration, and how we worked around Rust library limitations that block the GTK *main thread*, check out [ARCHITECTURE.md](ARCHITECTURE.md) for implementation details.
 
 ---
 
-**Aviso de Uso:** *A sobrescrita ocorre em 3 etapas acompanhadas por preenchimento em "0". Esta ferramenta utiliza deleção de alta segurança, sendo os processos aplicados **irreversíveis**. Portanto, certifique-se bem de onde clica!*
+**Usage Warning:** *The overwrite process runs in 3 stages followed by zero‑filling. This tool performs high‑security deletion and the process is **irreversible**. Make sure you know exactly what you are clicking.*

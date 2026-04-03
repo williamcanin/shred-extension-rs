@@ -1,35 +1,94 @@
-# 🏗 Arquitetura do Shred Extension Rs (C-FFI & Rust) 🦀
+# 🏗 Shred Extension Rs Architecture (C‑FFI & Rust) 🦀
 
-Criar uma extensão para os ecossistemas do GNOME (Nautilus usando GTK4/Libadwaita API) e XFCE (Thunar) não é uma tarefa simples com as transições das antigas *crates* do Rust. Este documento cobre como as barreiras do C-FFI foram superadas e as soluções criativas projetadas na extensão para suportar ambos os gerenciadores de arquivos simultaneamente com uma base de código unificada.
+Building an extension for the GNOME ecosystem (Nautilus using GTK4/Libadwaita APIs) and XFCE (Thunar) is not straightforward given the evolution and deprecation of older Rust crates. This document explains how the C‑FFI barriers were overcome and the design decisions that allow this project to support both file managers simultaneously from a single unified Rust codebase.
 
-## 1. O Abandono de Crates Rust Defasados e a adoção do "Pure FFI"
+---
 
-Originalmente, existiam tentativas com *crates* da comunidade, como `thunar-extension` ou antigos binding do Nautilus. No entanto, esses pacotes muitas vezes estavam presos a versões defasadas de pacotes C (ex: `gtk-sys v0.15` amarrado ao GTK3).
+## 1. Abandoning Outdated Rust Crates and Embracing “Pure FFI”
 
-Nos níveis mais novos do GTK4 (Nautilus/GNOME 43+) e nas atualizações do Thunar, estruturas clássicas da base C foram alteradas ou banidas da biblioteca de extensões padrão. Um simples link via *crate* antigo gerava uma chuva de *"Undefined Symbols"* na hora que a extensão carregava.
+Early attempts relied on community crates such as `thunar-extension` or older Nautilus bindings. These crates were frequently tied to outdated C dependencies (for example, `gtk-sys v0.15` bound to GTK3).
 
-**A Solução Multi-Ambiente:** Descartamos completamente os *crates* de ligação obsoletos. Construímos as **próprias ligações C-FFI (Rust FFI)** da extensão, apontando dependências diretamente à memória nativa do sistema do File Manager correspondente (`libnautilus-extension` e `libthunarx`).
-Através de anotações como `#[cfg(feature = "nautilus")]` e `#[cfg(feature = "thunar")]`, o Rust consegue expor a VTable exata implementando os ponteiros corretos. No lugar de uma pesada dependência ao ecossistema GTK completo do Rust, usamos apenas conversão enxuta garantida pelo `gio` nativo. O provedor de menus então é injetado diretamente usando `g_type_module_register_type`.
+With GTK4 (GNOME 43+) and recent Thunar updates, several legacy C structures were removed or changed from the extension APIs. Simply linking against these old crates resulted in a cascade of **"Undefined Symbols"** errors when the extension was loaded by the file manager.
 
-## 2. Bloqueio Assíncrono do Nautilus / Thunar (UI Freezing)
+### The Multi‑Environment Solution
 
-Nas primeiras abordagens da lógica do *shred*, notamos que se colocássemos _loops_ iterativos sobrescrevendo arquivos de megabytes dentro do _callback_ do menu de contexto, todo o Gerenciador de Arquivos entrava em _Freeze_ (A *main thread* congelava até a exclusão terminar). 
+All obsolete binding crates were discarded. Instead, this project implements its **own C‑FFI bindings (Rust FFI)** that point directly to the native memory and symbols provided by each file manager (`libnautilus-extension` and `libthunarx`).
 
-**A Solução de Assincronicidade:**
-Implementamos uma simples rotina de concorrência com `std::thread::spawn` atrelando o processamento agressivo da deleção a **Threads de Fundo Distintas**. Isso permite que o callback que acionamos a partir do GLib/GTK retorne rapidamente à memória, fazendo a experiência visual ao clicar reaparecer na tela quase que antes de você notar; enquanto os discos continuam rodando o `shred` furtivamente no vazio em plano de fundo.
+Using conditional compilation such as:
 
-## 3. O Defeito Visual Nativo de `shred -u`
+```rust
+#[cfg(feature = "nautilus")]
+#[cfg(feature = "thunar")]
+```
 
-Usar a flag clássica `-u` obriga o executável nativo `shred` (do shell linux) a ofuscar caminhos no momento da obliteração. Ele renomeia o arquivo intensivamente contendo caracteres com zeros e sequências variadas (ex: "000000", "00").
-Embora isso seja essencial, deixava "lixo temporário" visível no mesmo nível hierárquico da pasta por diversos _nano-segundos_. Como os UI Views do Nautilus/Thunar são dinâmicos e extremamente rápidos, eles muitas vezes capturavam e renderizavam o F5 visual destes arquivos falsos temporários e deturpavam a vista do próprio usuário durante esta etapa.
+Rust exposes the correct VTable and function pointers for each environment at compile time.
 
-**A Solução da Camuflagem:**
-Desenvolvemos uma manipulação lógica instantânea. Extraímos o arquivo original e efetuamos um `std::fs::rename` muito rápido em rust movendo o arquivo da vista dos exploradores (modificando os inodes localmente), o encapsulando dentro de **Subdiretórios Secretos Virtuais**.
-Tais diretórios subjacentes recebem a assinatura `.~shred_RANDOMSID` atrelada. Por iniciarem com um ponto `.`, o ecossistema Unix os denota como "invisíveis" logo por padrão. Agora, todas as sujeiras do `shred -u` operam livremente na escuridão sem causar problemas de UX. Padrão Absoluto de UX e Transparência.
+Rather than depending on the entire Rust GTK ecosystem, the extension uses only minimal and safe conversions via native `gio`, and registers the menu provider directly with `g_type_module_register_type`.
 
-## 4. Sem Dependências Pesadas de Terceiros e "Dialogs" Nativos
+This results in a lightweight, future‑proof, and highly compatible integration layer.
 
-Normalmente, *extensions pipelines* usam Gettext (.mo/.po files), que exigiriam compilação adicional na base dos scripts para os menus e as caixas de alerta. Depender de `gtk4-rs` injetaria centenas de megabytes de dados de ligação estática no tamanho do binário `.so`, só para produzir uma janela pop-up de diálogo.
+---
 
-* **Micromotor interno i18n:** Optamos por criar um _struct_ micro-gerenciador pro *i18n*. Lendo nossa própria variável de ambiente do OS (`$LANG`), instanciamos dados pré-computados localizados em Português, Espanhol ou o Padrão Inglês, sem as bagagens do gettext.
-* **Zenity App Callbacks:** Recusamos injetar ligações libadwaita/gtk4 nos _alerts_ em Rust. Em substituição, chamamos um _fork spawn_ `zenity` — a excelente caixa de diálogos C-App que interage com o tema GTK nativo da DE e é pre-instalada garantida na maioria dos GNOME e desktops modernos. Recuperamos então as respotas (*exit codes*) e definimos o percurso destrutivo de acordo se o usuário clicou em OK ou Cancelar. Assim, alcançamos um binário com a extrema leveza e Zero Custos de `cargo build`.
+## 2. Nautilus / Thunar UI Freezing (Main Thread Blocking)
+
+During early implementations of the shredding logic, performing multi‑megabyte overwrite loops directly inside the context‑menu callback caused the entire file manager UI to **freeze**. The GTK/GLib main thread would block until the deletion process finished.
+
+### The Asynchronous Solution
+
+A simple but effective concurrency model was implemented using:
+
+```rust
+std::thread::spawn
+```
+
+The heavy shredding process runs in **separate background threads**, allowing the original GTK callback to return immediately. From the user’s perspective, the file disappears almost instantly while the actual disk overwrite continues silently in the background.
+
+This preserves responsiveness and provides a seamless user experience.
+
+---
+
+## 3. The Native Visual Problem of `shred -u`
+
+Using the traditional `-u` flag forces the native Linux `shred` binary to repeatedly rename the file with sequences like `000000`, `00`, etc., during obliteration.
+
+Although this is part of the secure deletion process, it creates **temporary visual garbage** in the same folder for a few milliseconds. Because Nautilus and Thunar UI views are extremely fast and reactive, they often render these intermediate fake filenames, causing visual flicker and UX degradation.
+
+### The Camouflage Solution
+
+A custom logical manipulation was developed:
+
+1. The original file is instantly moved using a very fast `std::fs::rename`.
+2. It is relocated into **virtual hidden subdirectories** created on the fly.
+3. These directories are named like: `.~shred_RANDOMSID`.
+
+Because they start with a dot (`.`), they are automatically hidden by Unix conventions and ignored by file manager views.
+
+All the noisy operations of `shred -u` then occur invisibly in the background, resulting in a perfectly clean user experience with no visual artifacts.
+
+---
+
+## 4. No Heavy Third‑Party Dependencies and Native Dialogs
+
+Typical extension pipelines rely on Gettext (`.mo/.po`) for translations and often pull in `gtk4-rs` just to display confirmation dialogs. This would dramatically increase the size and complexity of the final `.so` binary.
+
+### Internal Micro i18n Engine
+
+A lightweight internal i18n structure was implemented. By reading the system environment variable (`$LANG`), the extension selects pre‑computed localized strings for Portuguese, Spanish, or default English — without any gettext tooling or compilation overhead.
+
+### Zenity Dialog Callbacks
+
+Instead of linking against GTK/Libadwaita for dialogs, the extension spawns:
+
+```bash
+zenity
+```
+
+`zenity` is a small native C dialog tool that integrates perfectly with the current GTK theme and is preinstalled on most GNOME and modern Linux desktops.
+
+The extension reads the returned **exit codes** (OK / Cancel) to decide whether to proceed with destruction.
+
+This approach keeps the binary extremely small, avoids heavy dependencies, and maintains native visual integration with the user’s desktop environment.
+
+---
+
+This architecture allows Shred Extension Rs to remain minimal, fast, portable, and highly compatible with modern Linux desktop environments while avoiding the pitfalls of outdated bindings and bloated dependencies.
