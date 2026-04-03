@@ -4,26 +4,21 @@ Building an extension for the GNOME ecosystem (Nautilus using GTK4/Libadwaita AP
 
 ---
 
-## 1. Abandoning Outdated Rust Crates and Embracing “Pure FFI”
+## 1. Modular Architecture (Rust Workspace)
 
-Early attempts relied on community crates such as `thunar-extension` or older Nautilus bindings. These crates were frequently tied to outdated C dependencies (for example, `gtk-sys v0.15` bound to GTK3).
+As the project grew to support multiple file managers and complex features like Secure Trash, a monolithic approach became difficult to maintain and resulted in compiler warnings when building for only one target.
 
-With GTK4 (GNOME 43+) and recent Thunar updates, several legacy C structures were removed or changed from the extension APIs. Simply linking against these old crates resulted in a cascade of **"Undefined Symbols"** errors when the extension was loaded by the file manager.
+To solve this, the project was refactored into a **Rust Workspace**:
 
-### The Multi‑Environment Solution
+*   **`shred-common`**: A core library containing shared logic, including the high-security shredding algorithm, internationalization (i18n), and background thread management.
+*   **`shred-nautilus`**: A specialized `cdylib` crate that implements the Nautilus-specific FFI and GTK4 menu provider interface.
+*   **`shred-thunar`**: A specialized `cdylib` crate that implements the Thunar-specific FFI and Thunarx menu provider interface.
 
-All obsolete binding crates were discarded. Instead, this project implements its **own C‑FFI bindings (Rust FFI)** that point directly to the native memory and symbols provided by each file manager (`libnautilus-extension` and `libthunarx`).
+### Pure FFI Integration
 
-Using conditional compilation such as:
+All obsolete binding crates were discarded. Instead, each extension implements its **own C‑FFI bindings** that point directly to the native memory and symbols provided by each file manager (`libnautilus-extension` or `libthunarx`).
 
-```rust
-#[cfg(feature = "nautilus")]
-#[cfg(feature = "thunar")]
-```
-
-Rust exposes the correct VTable and function pointers for each environment at compile time.
-
-Rather than depending on the entire Rust GTK ecosystem, the extension uses only minimal and safe conversions via native `gio`, and registers the menu provider directly with `g_type_module_register_type`.
+Rather than depending on the entire Rust GTK ecosystem, the extensions use only minimal and safe conversions via native `gio`, and register the menu provider directly with `g_type_module_register_type`.
 
 This results in a lightweight, future‑proof, and highly compatible integration layer.
 

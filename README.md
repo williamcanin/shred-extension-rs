@@ -12,64 +12,36 @@ Written in **Rust**, the extension focuses on high performance and maximum data 
 ## ✨ Features
 
 * **Native Context Menu Integration**: A clear "Secure Delete" option available for any file in GNOME or XFCE file managers.
-* **Asynchronous & Instant UI**: After confirmation, the file disappears instantly from the interface. The actual shredding runs silently in a **background thread**, keeping the file manager fully responsive.
+* **Secure Empty Trash**: Right-click the Trash icon or its background to securely wipe all deleted files. It recursively shreds the actual data on disk before removing entries from the trash system.
 * **Integrated Confirmation Dialog**: To prevent accidental clicks and the headaches the `shred` command can cause when misused, the extension calls the system’s native dialog (`zenity`). A "Yes/OK" confirmation is required.
 * **Smart File Camouflage**: Unlike the native `shred -u` behavior in the terminal (which briefly pollutes your folder with renamed artifacts like `000000`), this extension hides files inside temporary "invisible" directories (starting with `.`). The deletion happens behind the scenes, silently.
-* **Multi‑Environment Support**: Works with both **Nautilus** and **Thunar**, sharing the same Rust codebase.
+* **Modular Architecture (Workspace)**: Now structured as a Rust Workspace with zero cross-manager warnings. You can build specific extensions for Nautilus or Thunar without bloating the binary.
 * **Built‑in Internationalization (i18n)**: Automatic language detection based on the system locale to display menus and messages in:
 
-  * 🇧🇷 Portuguese‑BR / PT ("Excluir com Segurança")
-  * 🇪🇸 Spanish ("Eliminación Segura")
-  * 🇺🇸 English / Fallback ("Secure Delete")
+  * 🇧🇷 Portuguese‑BR / PT ("Excluir com Segurança" / "Esvaziar Lixeira com Segurança")
+  * 🇪🇸 Spanish ("Eliminación Segura" / "Vaciar Papelera de Forma Segura")
+  * 🇺🇸 English / Fallback ("Secure Delete" / "Secure Empty Trash")
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Build
 
 You can install the extension in three different ways:
 
 1. **Arch Linux (AUR)** — separate packages for each file manager
 2. **Universal automatic script (any distro)**
-3. **Manual library installation**
+3. **Manual compilation (from source)**
 
 ---
 
 ### 🐧 Arch Linux (AUR)
 
-If you use Arch Linux or derivatives (EndeavourOS, Manjaro, CachyOS, etc.), install directly from the AUR by choosing your desired file manager:
+If you use Arch Linux or derivatives (EndeavourOS, Manjaro, CachyOS, etc.), install directly from the AUR:
 
-```bash
-yay -S shred-extension-rs-nautilus
-```
+*   **Nautilus**: `yay -S shred-extension-rs-nautilus`
+*   **Thunar**: `yay -S shred-extension-rs-thunar`
 
-or
-
-```bash
-yay -S shred-extension-rs-thunar
-```
-
-Or build manually:
-
-```bash
-git clone https://aur.archlinux.org/shred-extension-rs.git
-cd shred-extension-rs
-makepkg -s
-sudo pacman -U shred-extension-rs-nautilus-*.pkg.tar.zst
-```
-
-or
-
-```bash
-sudo pacman -U shred-extension-rs-thunar-*.pkg.tar.zst
-```
-
-Both packages install the library in the correct system path using the standard name:
-
-```
-libshred_extension_rs.so
-```
-
-Fully compatible with future updates and with no conflict with the script installer.
+Both packages install the library in the correct system path.
 
 ---
 
@@ -81,58 +53,34 @@ You can install **without downloading anything** by running the script directly 
 bash <(curl -fsSL https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
 ```
 
-Or using `wget`:
-
-```bash
-bash <(wget -qO- https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
-```
-
-> Note: To uninstall, use the `--uninstall` flag, for example:
->
-> ```bash
-> bash <(curl -fsSL https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh) --uninstall
-> ```
-
-
-The script will:
-
-* Ask which file manager you use (Nautilus or Thunar)
-* Automatically download the latest release via the GitHub API
-* Install the library in the correct system directory
-* Standardize the name to `libshred_extension_rs.so`, ensuring AUR compatibility
-
-> 💡 Security tip: you can inspect the script before running it by opening:
-> [https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh](https://raw.githubusercontent.com/williamcanin/shred-extension-rs/main/install.sh)
-
 ---
 
-### 🧰 Manual Installation
+### 🛠 Manual Compilation
 
-If you prefer managing everything manually with `root` commands, download the `.so` library from the project Releases.
+To build from source, ensure you have `rustup` and `pkg-config` installed.
 
-After downloading, rename it to the expected standard:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/williamcanin/shred-extension-rs.git
+   cd shred-extension-rs
+   ```
 
-```bash
-mv libshred-extension-rs-*.so libshred_extension_rs.so
-```
+2. **Build for your file manager**:
+   * **Nautilus**:
+     ```bash
+     cargo build -p shred-nautilus --release
+     sudo cp target/release/libshred_nautilus.so /usr/lib/nautilus/extensions-4/libshred_extension_rs.so
+     nautilus -q
+     ```
+   * **Thunar**:
+     ```bash
+     cargo build -p shred-thunar --release
+     sudo cp target/release/libshred_thunar.so /usr/lib/thunarx-3/libshred_extension_rs.so
+     thunar -q
+     ```
 
-* **For Nautilus:**
-
-```bash
-sudo cp libshred_extension_rs.so /usr/lib/nautilus/extensions-4/
-nautilus -q
-```
-
-*(Some systems like Ubuntu/Mint may use `/usr/lib/x86_64-linux-gnu/nautilus/extensions-4/`)*
-
-* **For Thunar:**
-
-```bash
-sudo cp libshred_extension_rs.so /usr/lib/thunarx-3/
-thunar -q
-```
-
-*(Some distributions use `/usr/lib/x86_64-linux-gnu/thunarx-3/`)*
+> [!TIP]
+> Each extension depends on the `shred-common` internal crate, ensuring that shared logic (like the shredding algorithm) remains consistent across all platforms while keeping the final binaries lightweight.
 
 ---
 
