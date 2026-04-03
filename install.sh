@@ -2,6 +2,54 @@
 # Author: William C. Canin <hello.williamcanin@gmail.com>
 set -e
 
+# ----- Uninstall mode -----
+
+if [[ "$1" == "--uninstall" ]]; then
+    echo "Shred Extension Rs — Uninstall Mode"
+
+    TARGET_NAME="libshred_extension_rs.so"
+
+    detect_and_remove () {
+        local DIR="$1"
+        if [ -f "$DIR/$TARGET_NAME" ]; then
+            echo "Removing from: $DIR"
+            sudo rm -f "$DIR/$TARGET_NAME"
+            return 0
+        fi
+        return 1
+    }
+
+    FOUND=0
+
+    # Common Nautilus paths
+    for d in \
+        /usr/lib/nautilus/extensions-4 \
+        /usr/lib64/nautilus/extensions-4 \
+        /usr/lib/x86_64-linux-gnu/nautilus/extensions-4
+    do
+        detect_and_remove "$d" && FOUND=1
+    done
+
+    # Common Thunar paths
+    for d in \
+        /usr/lib/thunarx-3 \
+        /usr/lib64/thunarx-3 \
+        /usr/lib/x86_64-linux-gnu/thunarx-3
+    do
+        detect_and_remove "$d" && FOUND=1
+    done
+
+    if [ "$FOUND" -eq 0 ]; then
+        echo "No installation found."
+    else
+        echo "Uninstallation completed."
+        nautilus -q 2>/dev/null || true
+        thunar -q 2>/dev/null || true
+    fi
+
+    exit 0
+fi
+
 # ----- Select the target file manager -----
 
 echo "Which file manager do you want to install the extension for?"
