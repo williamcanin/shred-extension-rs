@@ -46,21 +46,21 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build Nautilus (release)
-        run: cargo build --release --features nautilus
+        run: cargo build -p shred-nautilus --release
 
       - name: Rename Nautilus artifact
         run: |
           mkdir -p dist
-          cp target/release/libshred_extension_rs.so \
-            dist/libshred-extension-rs-nautilus-${{ steps.version.outputs.version }}-x86_64.so
+          cp target/release/libshred_nautilus.so \
+            dist/libshred-extension-rs-nautilus.so
 
       - name: Build Thunar (release)
-        run: cargo build --release --features thunar
+        run: cargo build -p shred-thunar --release
 
       - name: Rename Thunar artifact
         run: |
-          cp target/release/libshred_extension_rs.so \
-            dist/libshred-extension-rs-thunar-${{ steps.version.outputs.version }}-x86_64.so
+          cp target/release/libshred_thunar.so \
+            dist/libshred-extension-rs-thunar.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

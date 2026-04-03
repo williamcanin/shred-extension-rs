@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Author: William C. Canin <hello.williamcanin@gmail.com>
+# Version: 0.2.0
+
 set -e
 
 # ----- Uninstall mode -----
@@ -105,7 +107,7 @@ else
         exit 1
     fi
 
-    LIB_NAME="${LIB_PREFIX}-${VERSION_TAG}-x86_64.so"
+    LIB_NAME="${LIB_PREFIX}.so"
     DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${LIB_NAME}"
     echo "Target file: $LIB_NAME"
 
