@@ -172,7 +172,7 @@ sudo mkdir -p "$EXT_DIR"
 sudo rm -f "$EXT_DIR/$TARGET_NAME"
 # Copy renaming to the PKGBUILD pattern
 sudo cp -f "$LIB_NAME" "$EXT_DIR/$TARGET_NAME"
-sudo chmod 755 "$EXT_DIR/$TARGET_NAME"
+sudo chmod 644 "$EXT_DIR/$TARGET_NAME"
 
 echo ""
 echo "Installation completed successfully!"
