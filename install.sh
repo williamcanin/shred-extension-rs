@@ -4,12 +4,12 @@
 
 set -e
 
+TARGET_NAME="libshred_extension_rs.so"
+
 # ----- Uninstall mode -----
 
 if [[ "$1" == "--uninstall" ]]; then
     echo "Shred Extension Rs — Uninstall Mode"
-
-    TARGET_NAME="libshred_extension_rs.so"
 
     detect_and_remove () {
         local DIR="$1"
@@ -77,7 +77,7 @@ case "$FM_CHOICE" in
 esac
 
 # ----- Locate or download the library -----
-TARGET_NAME="libshred_extension_rs.so"
+
 LOCAL_LIB=$(ls ${TARGET_NAME} 2>/dev/null || true)
 
 if [ -n "$LOCAL_LIB" ]; then
